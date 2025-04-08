@@ -1,9 +1,6 @@
 #!/bin/bash
 
-git clone https://github.com/DanyMint/athena-backend;
-git clone https://github.com/DanyMint/athena-frontend;
-
-cd ./athena-frontend
+cd ./frontend
 chmod +x ./install.sh;
 sudo ./install.sh;
 
