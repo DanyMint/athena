@@ -1,0 +1,8 @@
+# Ignore all
+**
+
+# Keep necessary
+!gunicorn_config.py
+!requirements.txt
+!src/
+!start.sh

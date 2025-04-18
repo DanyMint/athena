@@ -1,0 +1,11 @@
+**
+
+!vite.config.js
+!tailwind.config.js
+!src/
+!postcss.config.js
+!package-lock.json
+!package.json
+!index.html
+!nginx/
+!.env

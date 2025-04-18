@@ -1,6 +1,5 @@
-logs
-.idea
-venv
+*logs
+*.idea
+*venv
 
 *__pycache__*
-admissions/migrations/

@@ -22,7 +22,7 @@ from django.core.management.utils import get_random_secret_key
 SECRET_KEY = get_random_secret_key()
 DEBUG = bool(getenv("DEBUG"))
 
-ALLOWED_HOSTS = loads(getenv("ALLOWED_HOSTS"))
+ALLOWED_HOSTS = getenv('ALLOWED_HOSTS', '').split(',')
 
 CORS_ALLOW_ALL_ORIGINS = bool(getenv("CORS_ALLOW_ALL_ORIGINS"))
 #CORS_ALLOWED_ORIGINS = loads(getenv("CORS_ALLOWED_ORIGINS"))
