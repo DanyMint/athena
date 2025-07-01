@@ -85,7 +85,6 @@ const App = () => {
       <Layout style={{ minHeight: "100vh" }}>
         {/* Передаем в SiderMenu информацию о состоянии collapsed */}
         <SiderMenu collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} />
-        
         {/* Контейнер для основного контента, с динамическим отступом от Sider */}
         <Layout
           style={{
