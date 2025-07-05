@@ -21,11 +21,13 @@ services:
     container_name: api-server
     build: api-server/
     working_dir: /app
-    command: [ "sh", "-c", "./start.sh" ]
+    command: ["sh", "-c", "./start.sh"]
     env_file:
       - .env
     depends_on:
       - athena_ps_db
+    volumes:
+      - static_volume:/app/staticfiles
 
   frontend:
     build: frontend/
@@ -35,7 +37,9 @@ services:
       - "80:80"
     depends_on:
       - api-server
+    volumes:
+      - static_volume:/app/staticfiles
 
 volumes:
   athenadb:
-
+  static_volume:

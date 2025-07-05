@@ -12,4 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN python /app/src/manage.py collectstatic --noinput
+
 RUN chmod +x start.sh
