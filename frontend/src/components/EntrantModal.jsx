@@ -34,6 +34,9 @@ export default function EntrantModal({
   const [form] = Form.useForm();
   const [langsOfStudy, setLangsOfStudy] = useState([]);
   const [previousPlacesOfStudy, setPreviousPlacesOfStudy] = useState([]);
+  const [previousPlacesOfStudyType, setPreviousPlacesOfStudyType] = useState(
+    [],
+  );
   const [qualifications, setQualifications] = useState([]);
   const [quotas, setQuotas] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
@@ -227,18 +230,6 @@ export default function EntrantModal({
       rules: [{ required: true }],
     },
     {
-      key: "previous_place_of_study_id",
-      name: "previous_place_of_study_id",
-      label: "Предыдущее место обучения",
-      type: "select",
-      tab: "Образование",
-      props: {
-        options: previousPlacesOfStudy,
-        placeholder: "Выберите место",
-      },
-      rules: [{ required: true }],
-    },
-    {
       key: "quota",
       name: "quota",
       label: "Квоты",
@@ -266,6 +257,19 @@ export default function EntrantModal({
         };
       },
     });
+
+    getSelectItemsUneversal(
+      "previous_place_of_study_types",
+      setPreviousPlacesOfStudyType,
+      {
+        customMapFunc: (pps) => {
+          return {
+            value: pps["name"],
+            label: pps["name"],
+          };
+        },
+      },
+    );
 
     getSelectItemsUneversal(
       "previous_places_of_study",
@@ -415,6 +419,49 @@ export default function EntrantModal({
               </Form.Item>
             );
           })}
+
+          {tabName === "Образование" && (
+            <Form.Item
+              name="previous_place_of_study_id"
+              label="Предыдущее место обучения"
+              rules={[
+                {
+                  required: true,
+                  message: `Выберите предыдущее место обучения`,
+                },
+              ]}
+            >
+              <SelectWithCustomAddForm
+                endpoint="previous_places_of_study"
+                selectPlaceholder="Выберите предыдущее место обучения"
+                items={previousPlacesOfStudy}
+                setItems={setPreviousPlacesOfStudy}
+                fieldsConfig={[
+                  {
+                    key: "name",
+                    name: "name",
+                    label: "Название учереждения",
+                    type: "input",
+                    props: { placeholder: "Введите учереждение" },
+                    rules: [
+                      { required: false, message: "Введите учереждение" },
+                    ],
+                  },
+                  {
+                    key: "previous_place_of_study_type",
+                    name: "previous_place_of_study_type",
+                    label: "Выберите базу",
+                    type: "select",
+                    props: {
+                      options: previousPlacesOfStudyType,
+                      placeholder: "Выберите базу",
+                    },
+                    rules: [{ required: false, message: "Введите базу" }],
+                  },
+                ]}
+              />
+            </Form.Item>
+          )}
 
           {tabName === "Личные данные" && (
             <>

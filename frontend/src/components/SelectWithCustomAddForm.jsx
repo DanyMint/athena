@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 
 const componentMap = {
   input: Input,
+  select: Select,
 };
 
 const SelectWithCustomAddForm = ({
