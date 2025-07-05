@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Modal, Input, Form, message } from "antd";
 import axios from "axios";
+import SelectWithAdd from "./SelectWithAdd";
 
 const ModalForm = ({
   visible,
@@ -13,26 +14,21 @@ const ModalForm = ({
 }) => {
   const [form] = Form.useForm();
 
-  // Очистка или заполнение формы при изменении editingItem
   useEffect(() => {
     if (visible) {
       if (editingItem) {
-        // Если редактируем, заполняем поля
         form.setFieldsValue(editingItem);
       } else {
-        // Если добавляем, сбрасываем форму
         form.resetFields();
       }
     }
   }, [visible, editingItem, form]);
 
-  // Сохранение данных
   const handleConfirm = () => {
     form
       .validateFields()
       .then((values) => {
         if (editingItem) {
-          // Редактирование
           axios
             .put(`${baseUrl}/${editingItem.id}`, values)
             .then(() => {
@@ -41,7 +37,6 @@ const ModalForm = ({
             })
             .catch(() => message.error("Ошибка обновления элемента"));
         } else {
-          // Добавление
           axios
             .post(baseUrl, values)
             .then((response) => {
@@ -72,7 +67,15 @@ const ModalForm = ({
             validateFirst
             rules={field.rules}
           >
-            <Input placeholder={field.placeholder || ""} />
+            {field.isSelectWithAdd ? (
+              <SelectWithAdd
+                endPointName={field.selectEndPointName}
+                selectPlaceholder={field.selectPlaceholder}
+                inputPlaceholder={field.inputPlaceholder}
+              />
+            ) : (
+              <Input placeholder={field.placeholder || ""} />
+            )}
           </Form.Item>
         ))}
       </Form>

@@ -1,16 +1,17 @@
 import React from "react";
 import { Col, Row } from "antd";
 import SettingCard from "../components/SettingCard";
-import ReportTemplateCard from "../components/ReportTemplateCard";
-import {baseBackEndURL} from "../tools/backendAPI";
+import { baseBackEndURL } from "../tools/backendAPI";
 
 const DirectoryManagement = () => {
   const quotaAPIURL = `${baseBackEndURL}quotas`;
   const specialtyAPIURL = `${baseBackEndURL}specialties`;
-  const previusPlaceOfStudyAPIURL = `${baseBackEndURL}previous_place_of_study_types`;
+  const previusPlaceOfStudytypeAPIURL = `${baseBackEndURL}previous_place_of_study_types`;
+  const previusPlaceOfStudyAPIURL = `${baseBackEndURL}previous_places_of_study`;
   const langsOfStudyAPIURL = `${baseBackEndURL}langs_of_study`;
   const nationalitiesAPIURL = `${baseBackEndURL}nationalities`;
   const citizenshipsAPIURL = `${baseBackEndURL}citizenships`;
+  const qualificationsAPIURL = `${baseBackEndURL}qualifications`;
 
   const quotaModalFields = [
     {
@@ -38,6 +39,7 @@ const DirectoryManagement = () => {
       ],
     },
   ];
+
   const specialtyModalFields = [
     {
       name: "name",
@@ -64,20 +66,22 @@ const DirectoryManagement = () => {
       ],
     },
   ];
-  const previusPlaceOfStudyModalFields = [
+
+  const previusPlaceOfStudyTypeModalFields = [
     {
       name: "name",
-      label: "Предыдущее место обучения",
-      placeholder: "Введите название предыдущего места обучения",
+      label: "Тип базы обучения",
+      placeholder: "Например 9 класс..",
       rules: [
-        { required: true, message: `Требуется ввести название местa обучения` },
+        { required: true, message: `Требуется ввести тип базы обучения` },
         {
           max: 30,
-          message: "Названия местa обучения должно быть не больше 30 символов",
+          message: "Тип базы обучения должно быть не больше 30 символов",
         },
       ],
     },
   ];
+
   const langsOfStudyModalFields = [
     {
       name: "name",
@@ -123,12 +127,71 @@ const DirectoryManagement = () => {
     },
   ];
 
+  const qualificationsModalFields = [
+    {
+      name: "name",
+      label: "Название квалификации",
+      placeholder: "Введите название",
+      rules: [
+        { required: true, message: `Требуется ввести название квалификации` },
+        {
+          max: 100,
+          message: "Название квалификации должно быть не больше 100 символов",
+        },
+      ],
+    },
+    {
+      name: "code",
+      label: "Код квалификации",
+      placeholder: "Введите код",
+      rules: [
+        { required: true, message: `Требуется ввести код квалификации` },
+        {
+          max: 50,
+          message: "Код квалификации должно быть не больше 50 символов",
+        },
+      ],
+    },
+    {
+      name: "specialty",
+      isSelectWithAdd: true,
+      label: "Специальность",
+      selectPlaceholder: "Выберите специальность",
+      selectEndPointName: "specialties",
+      inputPlaceholder: "Введите название специальности",
+      rules: [{ required: true, message: `Требуется выбрать специальность` }],
+    },
+  ];
+
+  const previusPlaceOfStudyModalFields = [
+    {
+      name: "name",
+      label: "Учреждение",
+      placeholder: "Введите название учреждения",
+      rules: [
+        { required: true, message: `Требуется ввести название учреждения` },
+        {
+          max: 150,
+          message: "Название учреждения должно быть не больше 150 символов",
+        },
+      ],
+    },
+    {
+      name: "previous_place_of_study_type",
+      isSelectWithAdd: true,
+      label: "Тип базы обучения",
+      selectPlaceholder: "Выберите тип базы обучения",
+      selectEndPointName: "previous_place_of_study_types",
+      inputPlaceholder: "Введите тип базы обучения",
+      rules: [
+        { required: true, message: `Требуется выбрать тип базы обучения` },
+      ],
+    },
+  ];
+
   return (
     <div className="p-6">
       <Row gutter={[24, 24]}>
-        {/* <Col span={24}>
-          <ReportTemplateCard title="Шаблоны для отчетов" />
-        </Col> */}
         <Col span={12}>
           <SettingCard
             title="Квоты"
@@ -145,7 +208,21 @@ const DirectoryManagement = () => {
         </Col>
         <Col span={12}>
           <SettingCard
-            title="Предыдущие место обучения"
+            title="Квалификации"
+            baseUrl={qualificationsAPIURL}
+            modalFields={qualificationsModalFields}
+          />
+        </Col>
+        <Col span={12}>
+          <SettingCard
+            title="Типы базы обучения"
+            baseUrl={previusPlaceOfStudytypeAPIURL}
+            modalFields={previusPlaceOfStudyTypeModalFields}
+          />
+        </Col>
+        <Col span={12}>
+          <SettingCard
+            title="Список учреждений"
             baseUrl={previusPlaceOfStudyAPIURL}
             modalFields={previusPlaceOfStudyModalFields}
           />

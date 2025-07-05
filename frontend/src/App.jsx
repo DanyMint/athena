@@ -6,15 +6,22 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 
 // Component for each route
 import Analytics from "./pages/Analytics";
 import Entrants from "./pages/Entrants";
 import CreateReport from "./pages/CreateReport";
-import Settings from "./pages/Settings";
-import TemplatePage from "./pages/Template";
-
+import SettingsLayout from "./components/SettingsLayout";
+import CommonSettings from "./pages/CommonSettings";
+import DirectoryManagement from "./pages/DirectoryManagementSettings";
+import NotFound from "./pages/NotFound";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -32,8 +39,14 @@ function getItem(label, key, icon, children, path) {
 const items = [
   getItem("Аналитика", "analytics", <PieChartOutlined />, null, "/analytics"),
   getItem("Абитуриенты", "entrants", <TeamOutlined />, null, "/entrants"),
-  getItem("Создать отчет", "create-report", <FileOutlined />, null, "/create-report"),
-  getItem("Настройки", "settings", <DesktopOutlined />, null, "/settings"),
+  // getItem(
+  //   "Создать отчет",
+  //   "create-report",
+  //   <FileOutlined />,
+  //   null,
+  //   "/create-report",
+  // ),
+  // getItem("Настройки", "settings", <DesktopOutlined />, null, "/settings"),
 ];
 
 // Компонент меню боковой панели
@@ -67,7 +80,6 @@ const SiderMenu = ({ collapsed, onCollapse }) => {
         style={{
           transition: "all 0.3s ease", // Плавное изменение всех свойств меню
         }}
-        // Для элементов меню настройка плавной анимации
         className="custom-menu"
       />
     </Sider>
@@ -83,27 +95,35 @@ const App = () => {
   return (
     <Router>
       <Layout style={{ minHeight: "100vh" }}>
-        {/* Передаем в SiderMenu информацию о состоянии collapsed */}
-        <SiderMenu collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} />
-        {/* Контейнер для основного контента, с динамическим отступом от Sider */}
+        <SiderMenu
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+        />
         <Layout
           style={{
-            marginLeft: collapsed ? 80 : 250, // Если Sider свёрнут, отступ будет 80px, если раскрыт - 250px
-            transition: "margin-left 0.3s ease", // Плавная анимация для контента
+            marginLeft: collapsed ? 80 : 250,
+            transition: "margin-left 0.3s ease",
           }}
         >
-          {/* <Header style={{ background: colorBgContainer, borderRadius: 8 }} /> */}
-          <Content style={{  padding: 24 }}>
+          <Content style={{ padding: 24 }}>
             <Routes>
+              <Route path="/" element={<Analytics />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/entrants" element={<Entrants />} />
               <Route path="/create-report" element={<CreateReport />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/settings/template" element={<TemplatePage />} /> {/* Default Route */}
-              <Route path="/" element={<Analytics />} /> {/* Default Route */}
+              {/* <Route path="/settings" element={<SettingsLayout />}>
+                <Route index element={<CommonSettings />} />
+                <Route
+                  path="directory-managment"
+                  element={<DirectoryManagement />}
+                />
+              </Route> */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Content>
-          {/* <Footer style={{ textAlign: "center" }}>Ant Design ©2023</Footer> */}
+          <Footer style={{ textAlign: "center" }}>
+            Danil Tormin and LLP "Computer and Educational Service" ©2025
+          </Footer>
         </Layout>
       </Layout>
     </Router>

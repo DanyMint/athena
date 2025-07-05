@@ -1,38 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Input, Button, Tag, Table, Select, Row, Col, Card } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import {
-  getRowDataByURLandEndpointname,
-  fetchItems,
-} from "../tools/backendAPI";
 
-const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
-  const [searchText, setSearchText] = useState("");
-  const [selectedSpecialty, setSelectedSpecialty] = useState(null);
-  const [selectedQuotas, setSelectedQuotas] = useState([]);
-  const [specialties, setSpecialties] = useState([]);
-  const [quotas, setQuotas] = useState([]);
-  const [pageSize, setPageSize] = useState(10);
-  const [entrantsCount, setEntrantsCount] = useState(0);
-  const [entrants, setEntrants] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+const EntrantsList = ({
+  setSelectedEntrantId,
+  onSelectEntrant,
+  handleAddEntrant,
+  entrantsList,
+  selectedQualification,
+  setSelectedQualification,
+  selectedQuotas,
+  setSelectedQuotas,
+  pageSize,
+  setPageSize,
+  currentPage,
+  setCurrentPage,
+  searchText,
+  setSearchText,
+  specialties,
+  quotas,
+  entrantsCount,
+}) => {
+  const handleRowClick = (record) => {
+    onSelectEntrant(record);
+  };
 
-  useEffect(() => {
-    getRowDataByURLandEndpointname("quotas", (quotaList) => {
-      setQuotas(quotaList.results);
-    });
-
-    getRowDataByURLandEndpointname("specialties", (specialtyList) => {
-      setSpecialties(specialtyList.results);
-    });
-
-    getRowDataByURLandEndpointname("entrants", (entrantList) => {
-      // setEntrants(entrantList.results);
-      setEntrantsCount(entrantList.count);
-    });
-
-    fetchNewItems(1, 10);
-  }, []);
+  const handleClearFilters = () => {
+    setSearchText("");
+    setSelectedQuotas([]);
+    setSelectedQualification(null);
+  };
 
   const columns = [
     {
@@ -49,7 +46,11 @@ const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
       dataIndex: "individual_identical_number",
       key: "individual_identical_number",
     },
-    { title: "Специальность", dataIndex: "specialty", key: "specialty" },
+    {
+      title: "Квалификация",
+      dataIndex: "qualification",
+      key: "qualification",
+    },
     {
       title: "Квоты",
       dataIndex: "quota",
@@ -63,55 +64,6 @@ const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
     },
   ];
 
-  const handleRowClick = (record) => {
-    onSelectEntrant(record);
-  };
-
-  const handleClearFilters = () => {
-    setSearchText("");
-    setSelectedSpecialty(null);
-    setSelectedQuotas([]);
-    fetchNewItems({ page: 1, specialty: "", quotas: [], sQuery: "" });
-  };
-
-  const fetchNewItems = ({
-    page = currentPage,
-    pSize = pageSize,
-    quotas = selectedQuotas,
-    specialty = selectedSpecialty,
-    sQuery = searchText,
-  }) => {
-    let filterList = [];
-
-    if (quotas !== null && quotas.length !== 0) {
-      quotas.forEach((quota) => {
-        filterList.push(`quota=${quota}`);
-      });
-    }
-
-    if (
-      specialty !== undefined &&
-      specialty !== null &&
-      specialty.length !== 0
-    ) {
-      filterList.push(`specialty=${specialty}`);
-    }
-
-    fetchItems(
-      "entrants",
-      {
-        page: page,
-        pageSize: pSize,
-        searchQuery: sQuery,
-        filters: filterList,
-      },
-      (entrantList) => {
-        setEntrants(entrantList.results);
-        setEntrantsCount(entrantList.count);
-      }
-    );
-  };
-
   return (
     <div className="p-6 space-y-4">
       <Card
@@ -121,13 +73,7 @@ const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
               <Input.Search
                 placeholder="Введите ФИО или ИИН"
                 value={searchText}
-                onChange={(e) => {
-                  setSearchText(e.target.value);
-                  fetchNewItems({
-                    page: 1,
-                    sQuery: e.target.value,
-                  });
-                }}
+                onChange={(e) => setSearchText(e.target.value)}
                 allowClear
                 enterButton={<SearchOutlined />}
                 size="large"
@@ -135,26 +81,15 @@ const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
             </Col>
             <Col xs={24} sm={12} md={8}>
               <Select
-                placeholder="Выберите специальность"
-                value={selectedSpecialty}
-                onChange={(value) => {
-                  setSelectedSpecialty(value);
-                  fetchNewItems({
-                    specialty: value,
-                  });
-                }}
+                placeholder="Выберите квалификацию"
+                value={selectedQualification}
+                onChange={setSelectedQualification}
                 allowClear
                 style={{ width: "100%", height: 40 }}
                 options={specialties.map((spec) => ({
                   value: spec.id,
                   label: spec.name,
                 }))}
-                onClear={() => {
-                  setSelectedSpecialty(null);
-                  fetchNewItems({
-                    specialty: null,
-                  });
-                }}
               />
             </Col>
             <Col xs={24} sm={12} md={8}>
@@ -162,20 +97,13 @@ const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
                 mode="multiple"
                 placeholder="Выберите квоты"
                 value={selectedQuotas}
-                onChange={(value) => {
-                  setSelectedQuotas(value);
-                  fetchNewItems({ page: 1, quotas: value });
-                }}
+                onChange={setSelectedQuotas}
                 allowClear
                 style={{ width: "100%", height: 40 }}
                 options={quotas.map((quota) => ({
                   value: quota.id,
                   label: quota.name,
                 }))}
-                onClear={() => {
-                  setSelectedQuotas("");
-                  fetchNewItems({ quotas: "" });
-                }}
               />
             </Col>
           </Row>
@@ -202,7 +130,7 @@ const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
 
       <Table
         columns={columns}
-        dataSource={entrants}
+        dataSource={entrantsList}
         rowKey="id"
         bordered
         size="small"
@@ -216,14 +144,9 @@ const EntrantsList = ({ onSelectEntrant, handleAddEntrant }) => {
           onChange: (page, pageSize) => {
             setCurrentPage(page);
             setPageSize(pageSize);
-            fetchNewItems({ page: page, pSize: pageSize });
           },
           showTotal: (total, range) =>
             `Показано ${range[0]}-${range[1]} из ${total}`,
-          // onShowSizeChange: (page, pageSize) => { setCurrentPage(page);
-          //   setPageSize(pageSize);
-          //   fetchNewItems({ page: page, pageSize: pageSize });
-          // },
         }}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),

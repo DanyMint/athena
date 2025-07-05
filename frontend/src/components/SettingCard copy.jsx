@@ -43,7 +43,7 @@ const SettingCard = ({ title, baseUrl, modalFields }) => {
 
   const handleAddItem = () => {
     setModalTitle("Добавить элемент");
-    setEditingItem(null);
+    setEditingItem(null); // Устанавливаем null для добавления нового элемента
     setIsModalVisible(true);
   };
 

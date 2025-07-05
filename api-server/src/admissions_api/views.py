@@ -17,7 +17,13 @@ from admissions.models import (
     PreviousPlaceOfStudyType,
     Entrant,
     Nationality,
-    CitizenshipList
+    CitizenshipList,
+    Parent,
+    AdmissionsGrant,
+    College,
+    Qualification,
+    PreviousPlaceOfStudy,
+    HowFoundOut
 )
 from .paginations import EntrantsSetPagination, DirectoryManagmentSetPagination
 from .serializers import (
@@ -27,7 +33,15 @@ from .serializers import (
     PreviousPlaceOfStudyTypeSerializer,
     EntrantSerializer,
     CitizenshipListSerializer,
-    NationalityListSerializer
+    NationalityListSerializer,
+    EntrantListSerializer,
+    ParentsListSerializer,
+    AdmissionsGrantSerializer,
+    CollegeGrantSerializer,
+    QualificationSerializer,
+    PreviousPlaceOfStudySerializer,
+    PreviousPlaceOfStudyLabelSerializer,
+    HowFoundOutListSerializer
 )
 
 
@@ -102,17 +116,23 @@ class BaseListCreateView(generics.ListCreateAPIView):
 
 class EntrantListCreate(generics.ListCreateAPIView):
     queryset = Entrant.objects.all()
-    serializer_class = EntrantSerializer
+    serializer_class = EntrantListSerializer
     pagination_class = EntrantsSetPagination
 
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ['quota', 'specialty']
+    filterset_fields = ['quota', 'qualification']
     search_fields = ['individual_identical_number', 'first_name', 'last_name']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return EntrantSerializer
+        return EntrantListSerializer
 
 
 class EntrantReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Entrant.objects.all()
     serializer_class = EntrantSerializer
+
 
 
 class CitizenshipListCreate(generics.ListCreateAPIView):
@@ -138,9 +158,100 @@ class NationalityListCreate(generics.ListCreateAPIView):
     queryset = Nationality.objects.all()
     serializer_class = NationalityListSerializer
     pagination_class = DirectoryManagmentSetPagination
-   
+
     filter_backends = [SearchFilter]
     search_fields = ['name']
+
+
+class ParentReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Parent.objects.all()
+    serializer_class =  ParentsListSerializer
+
+
+class ParentsListCreate(generics.ListCreateAPIView):
+    queryset = Parent.objects.all()
+    serializer_class =  ParentsListSerializer
+
+
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'first_name',
+        'last_name' ,
+        'patronymic'
+        ]
+
+class GrantsReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = AdmissionsGrantSerializer
+    def get_queryset(self):
+        return AdmissionsGrant.objects.with_fulfillment()
+
+class GrantsListCreate(generics.ListCreateAPIView):
+    serializer_class = AdmissionsGrantSerializer
+
+    def get_queryset(self):
+        return AdmissionsGrant.objects.with_fulfillment()
+
+
+    pagination_class = DirectoryManagmentSetPagination
+
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'college',
+        'qualification',
+        'previous_place_of_study_type',
+    ]
+
+
+class CollegeReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = College.objects.all()
+    serializer_class = CollegeGrantSerializer
+
+class CollegesListCreate(generics.ListCreateAPIView):
+    queryset = College.objects.all()
+    serializer_class = CollegeGrantSerializer
+
+class QualificationReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Qualification.objects.all()
+    serializer_class = QualificationSerializer
+
+class QualificationsListCreate(generics.ListCreateAPIView):
+    queryset = Qualification.objects.all()
+    serializer_class = QualificationSerializer
+
+    pagination_class = DirectoryManagmentSetPagination
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'name',
+        'code'
+    ]
+
+
+class PreviousPlaceOfStudyReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PreviousPlaceOfStudy.objects.all()
+    serializer_class = PreviousPlaceOfStudySerializer
+
+
+class PreviousPlacesOfStudyListCreate(generics.ListCreateAPIView):
+    queryset = PreviousPlaceOfStudy.objects.all()
+    serializer_class = PreviousPlaceOfStudyLabelSerializer
+
+    pagination_class = DirectoryManagmentSetPagination
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'name',
+        'previous_place_of_study_type'
+    ]
+
+
+class HowFoundOutListCreate(generics.ListCreateAPIView):
+    queryset = HowFoundOut.objects.all()
+    serializer_class = HowFoundOutListSerializer
+
+    pagination_class = DirectoryManagmentSetPagination
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'information_source',
+    ]
 
 
 @api_view(["GET"])

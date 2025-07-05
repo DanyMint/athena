@@ -22,6 +22,44 @@ export const getRowDataByURLandEndpointname = (itemName, callBackFunc) => {
 };
 
 /**
+ * Получает список элементов с сервера и трансформирует их под нужный формат.
+ *
+ * @param {string} endpoint - имя эндпоинта, например 'previous_place_of_study'
+ * @param {(options: Array) => void} callBackFunc - функция для передачи готовых options
+ * @param {object} config - объект с параметрами:
+ *        - labelField: поле из item, которое использовать как label
+ *        - valueField: поле из item, которое использовать как value
+ *        - customMapFunc: опционально — собственная map-функция для item
+ */
+export const getSelectItemsUneversal = (
+  endpoint,
+  callBackFunc,
+  config = { labelField: "name", valueField: "name", customMapFunc: null },
+) => {
+  const url = `${baseBackEndURL}${endpoint}`;
+
+  axios
+    .get(url)
+    .then((response) => {
+      const results = response.data.results || response.data;
+
+      let options = [];
+
+      if (typeof config.customMapFunc === "function") {
+        options = results.map(config.customMapFunc);
+      } else {
+        options = results.map((item) => ({
+          value: item[config.valueField],
+          label: item[config.labelField],
+        }));
+      }
+
+      callBackFunc(options);
+    })
+    .catch(() => message.error(`Ошибка! Не удалось загрузить список опций`));
+};
+
+/**
  * Return options for select antd
  * @constructor
  * @param {string} itemName - Endpoint name
@@ -39,7 +77,22 @@ export const getSelectItems = (itemName, callBackFunc) => {
       }));
       callBackFunc(responseList);
     })
-    .catch(() => message.error(`Ошибка! Неудалось загрузить список опций для ${itemName}`));
+    .catch(() =>
+      message.error(`Ошибка! Неудалось загрузить список опций для ${itemName}`),
+    );
+};
+
+export const addNewElementMultiField = (fieldname, dataObject) => {
+  const url = `${baseBackEndURL}${fieldname}`;
+
+  axios
+    .post(url, dataObject)
+    .then(() => {
+      message.success("Элемент успешно добавлен на сервер");
+    })
+    .catch(() => {
+      message.error("Ошибка! Не удалось добавить данные на сервер");
+    });
 };
 
 /**
@@ -54,7 +107,9 @@ export const addNewElement = (fieldname, name) => {
     name: name,
   };
 
-  axios.post(url, data).catch(() => message.error("Ошибка! Неудалось добавиь данныe на сервер"));
+  axios
+    .post(url, data)
+    .catch(() => message.error("Ошибка! Неудалось добавиь данныe на сервер"));
 };
 
 export const getEndpointOption = async (endpointName) => {
@@ -101,7 +156,7 @@ export const getFieldChoices = async (endpointName, fieldName) => {
 export const fetchItems = (
   endpointName,
   { page = 1, searchQuery = null, filters = [], pageSize = 10 },
-  callBackFunc
+  callBackFunc,
 ) => {
   let url = baseBackEndURL + endpointName;
   url += "?page=" + page;
@@ -122,5 +177,24 @@ export const fetchItems = (
     .then((response) => {
       callBackFunc(response.data);
     })
-    .catch(() => message.error(`Ошибка загрузки данных для поля ${endpointName}`));
+    .catch(() =>
+      message.error(`Ошибка загрузки данных для поля ${endpointName}`),
+    );
 };
+
+export async function deleteItemBy(endpointName, itemId, callBackFunc) {
+  if (typeof endpointName === "undefined" || typeof itemId === "undefined") {
+    message.error(`Не удалось удалить элемент`);
+    return;
+  }
+
+  const baseUrl = baseBackEndURL + endpointName;
+
+  axios
+    .delete(`${baseUrl}/${itemId}`)
+    .then(() => {
+      message.success("Элемент удален");
+      callBackFunc();
+    })
+    .catch(() => message.error("Ошибка удаления элемента"));
+}
