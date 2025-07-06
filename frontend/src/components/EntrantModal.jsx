@@ -339,6 +339,7 @@ export default function EntrantModal({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
       const processed = {
         ...values,
         on_the_budget: values.on_the_budget === "true",
@@ -347,6 +348,8 @@ export default function EntrantModal({
         how_found_out_about_college_ids: [
           values.how_found_out_about_college_ids,
         ],
+        quota: values?.quotas || [],
+        parent_ids: values?.parents || [],
       };
       const url = `${baseBackEndURL}entrants${selectedEntrant ? "/" + selectedEntrant.id : ""}`;
 
