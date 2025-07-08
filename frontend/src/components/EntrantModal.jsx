@@ -227,7 +227,7 @@ export default function EntrantModal({
         options: qualifications,
         placeholder: "Выберите квалификацию",
       },
-      rules: [{ required: true }],
+      rules: [{ required: true, message: `Требуется выбрать квалификацию` }],
     },
     {
       key: "quota",
@@ -326,7 +326,7 @@ export default function EntrantModal({
           : null,
         on_the_budget: selectedEntrant.on_the_budget ? "true" : "false",
         how_found_out_about_college_ids:
-          selectedEntrant.how_found_out_about_college,
+          selectedEntrant?.how_found_out_about_college[0]?.id || [],
         previous_place_of_study_id:
           selectedEntrant?.previous_place_of_study?.id,
         parent_ids: selectedEntrant?.parents.map((p) => p?.id),
@@ -353,21 +353,32 @@ export default function EntrantModal({
       };
       const url = `${baseBackEndURL}entrants${selectedEntrant ? "/" + selectedEntrant.id : ""}`;
 
-      const res = await fetch(url, {
+      const result = await fetch(url, {
         method: selectedEntrant ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(processed),
       });
 
-      if (res.ok) {
+      console.log(result);
+
+      if (result.ok) {
         message.success("Успешно отправлено!");
         setIsModalOpen(false);
         form.resetFields();
       } else {
-        message.error("Ошибка при отправке данных.");
+        if (result && typeof result === "object") {
+          const fieldErrors = Object.entries(result).map(([field, error]) => ({
+            name: field,
+            errors: Array.isArray(error) ? error : [String(error)],
+          }));
+          form.setFields(fieldErrors);
+        } else {
+          message.error("Ошибка при отправке данных.");
+        }
       }
     } catch (e) {
       message.error("Проверьте введённые данные.");
+      console.error(e);
     }
   };
 

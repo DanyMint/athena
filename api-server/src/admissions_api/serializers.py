@@ -144,11 +144,7 @@ class EntrantSerializer(serializers.ModelSerializer):
         queryset=Quota.objects.all()
     )
 
-    how_found_out_about_college = serializers.SlugRelatedField(
-        many=True,
-        slug_field="information_source",
-        read_only=True
-    )
+    how_found_out_about_college = HowFoundOutListSerializer(many=True, read_only=True)
 
     how_found_out_about_college_ids = serializers.PrimaryKeyRelatedField(
         many=True,

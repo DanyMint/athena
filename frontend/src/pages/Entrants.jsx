@@ -83,7 +83,6 @@ const Entrants = () => {
   };
 
   const onEditEntrant = (entrant) => {
-    console.log(entrant);
     setSelectedEntrant(entrant);
     setIsModalOpen(true);
   };

@@ -22,6 +22,7 @@ const EntrantCard = ({ entrantId, onEdit, onDelete }) => {
   useEffect(() => {
     const responseParser = (entrantData) => {
       setRowEntrantData(entrantData);
+
       let fullname = "Не указано";
       if (
         typeof entrantData.first_name !== "undefined" &&
@@ -132,7 +133,7 @@ const EntrantCard = ({ entrantId, onEdit, onDelete }) => {
           children:
             typeof entrantData?.how_found_out_about_college !== "undefined" &&
             entrantData?.how_found_out_about_college?.length > 0
-              ? entrantData?.how_found_out_about_college
+              ? entrantData?.how_found_out_about_college[0].information_source
               : "Источник не указан",
         },
         {
