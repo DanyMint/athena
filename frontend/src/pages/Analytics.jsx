@@ -1,5 +1,5 @@
 import React from "react";
-import SimpleAnalyticsTable from "../components/SimpleAnalztics";
+import SimpleAnalyticsTable from "../components/SimpleAnalytics";
 
 function Analytics() {
   return (
