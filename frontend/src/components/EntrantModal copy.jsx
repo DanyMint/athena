@@ -39,7 +39,6 @@ export default function EntrantModal({
   );
   const [qualifications, setQualifications] = useState([]);
   const [quotas, setQuotas] = useState([]);
-  const [colleges, setColleges] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
   const [studyFormats, setStudyFormats] = useState([]);
   const [entrantParents, setEntrantParents] = useState([]);
@@ -243,18 +242,6 @@ export default function EntrantModal({
       },
       rules: [],
     },
-    {
-      key: "college",
-      name: "college",
-      label: "Колледж",
-      type: "select",
-      tab: "Квоты",
-      props: {
-        options: colleges,
-        placeholder: "Выберите колледж",
-      },
-      rules: [{ required: true, message: `Требуется выбрать квалификацию` }],
-    },
   ];
 
   useEffect(() => {
@@ -308,15 +295,6 @@ export default function EntrantModal({
 
     getSelectItems("quotas", setQuotas);
 
-    getSelectItemsUneversal("colleges", setColleges, {
-      customMapFunc: (q) => {
-        return {
-          value: q["id"],
-          label: q["name"],
-        };
-      },
-    });
-
     getFieldChoices("entrants", "gender")
       .then(setGenderOptions)
       .catch(() => message.error(`Ошибка загрузки списка "пол"`));
@@ -341,6 +319,8 @@ export default function EntrantModal({
 
   useEffect(() => {
     if (selectedEntrant) {
+      console.log(selectedEntrant?.parents.map((p) => p?.id));
+
       form.setFieldsValue({
         ...selectedEntrant,
         birth_date: selectedEntrant.birth_date
@@ -357,6 +337,35 @@ export default function EntrantModal({
       form.resetFields();
     }
   }, [selectedEntrant]);
+
+  // Функция для обработки ошибок от DRF
+  const handleDRFErrors = (errorData) => {
+    const fieldErrors = [];
+
+    // Обрабатываем ошибки полей
+    for (const [fieldName, errors] of Object.entries(errorData)) {
+      if (fieldName === "non_field_errors") {
+        // Общие ошибки показываем как сообщение
+        const errorMessages = Array.isArray(errors) ? errors : [errors];
+        errorMessages.forEach((error) => {
+          message.error(error);
+        });
+      } else {
+        // Ошибки полей добавляем в форму
+        const errorMessages = Array.isArray(errors) ? errors : [String(errors)];
+        fieldErrors.push({
+          name: fieldName,
+          errors: errorMessages,
+        });
+      }
+    }
+
+    // Устанавливаем ошибки в форму
+    if (fieldErrors.length > 0) {
+      form.setFields(fieldErrors);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -364,6 +373,7 @@ export default function EntrantModal({
       const processed = {
         ...values,
         on_the_budget: values.on_the_budget === "true",
+        college: "b695f38a-cda7-4c7d-a1db-92600414a53b", // TODO: Fetch college ID from sessionProvider
         birth_date: dayjs(values.birth_date).format("YYYY-MM-DD"),
         how_found_out_about_college_ids: [
           values.how_found_out_about_college_ids,
@@ -384,38 +394,31 @@ export default function EntrantModal({
         message.success("Успешно отправлено!");
         setIsModalOpen(false);
         form.resetFields();
-        handleOnModalFormClose();
+        if (handleOnModalFormClose) {
+          handleOnModalFormClose();
+        }
       } else {
+        // Парсим ответ с ошибками от DRF
         const errorData = await result.json();
 
         if (errorData && typeof errorData === "object") {
-          console.error("Server er values:", errorData);
-
-          const fieldErrors = Object.entries(errorData).map(
-            ([field, error]) => ({
-              name: field,
-              errors: Array.isArray(error) ? error : [String(error)],
-            }),
-          );
-
-          form.setFields(fieldErrors);
-
-          message.error("Проверьте введённые данные и исправьте ошибки");
+          handleDRFErrors(errorData);
         } else {
-          message.error(
-            `Ошибка при отправке данных: ${result.status} ${result.statusText}`,
-          );
+          message.error("Ошибка при отправке данных.");
         }
       }
     } catch (e) {
-      console.error("Error in handleSubmit:", e);
-      if (e.name === "SyntaxError") {
-        message.error("Сервер вернул некорректный ответ");
+      if (e.errorFields) {
+        // Ошибки валидации формы
+        message.error("Проверьте введённые данные.");
       } else {
-        message.error("Проверьте введённые данные");
+        // Сетевые или другие ошибки
+        message.error("Произошла ошибка при отправке данных.");
+        console.error(e);
       }
     }
   };
+
   const groupedFields = fieldPreset.reduce((acc, field) => {
     if (!acc[field.tab]) acc[field.tab] = [];
     acc[field.tab].push(field);
