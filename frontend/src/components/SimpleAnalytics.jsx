@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
   Table,
   Spin,
@@ -10,8 +9,24 @@ import {
   message,
 } from "antd";
 import { fetchItems, getSelectItemsUneversal } from "../tools/backendAPI";
+import { useCallback, useEffect, useState } from "react";
 
 const { Title } = Typography;
+
+const getFilters = (filters) => {
+  const formatedFilters = [];
+  filters.map(({ key, value }) => {
+    if (
+      typeof value !== "undefined" &&
+      value !== null &&
+      typeof key !== "undefined" &&
+      key?.length > 0
+    ) {
+      formatedFilters.push(`${key}=${value}`);
+    }
+  });
+  return formatedFilters;
+};
 
 const SimpleAnalyticsTable = () => {
   const [data, setData] = useState([]);
@@ -20,6 +35,8 @@ const SimpleAnalyticsTable = () => {
   const [selectedQualification, setSelectedQualification] = useState(null);
   const [selectedStudyBase, setSelectedStudyBase] = useState(null);
   const [qualificationsList, setQualificationsList] = useState([]);
+  const [langsOfStudy, setLangsOfStudy] = useState([]);
+  const [selectedLangOfStudy, setSelectedLangOfStudy] = useState([]);
   const [studyBaseList, setStudyBaseList] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,7 +45,8 @@ const SimpleAnalyticsTable = () => {
 
   const fetchData = (responseList) => {
     const rawData = responseList.results.map((grant) => ({
-      id: grant?.id,
+      name: grant?.name,
+      langOfStudy: grant?.language_of_study?.name,
       qualification: `${grant?.qualification?.name} - ${grant?.qualification?.specialty}`,
       qualificationRaw: grant?.qualification?.name,
       previous_place_of_study_type: grant?.previous_place_of_study_type?.name,
@@ -41,33 +59,34 @@ const SimpleAnalyticsTable = () => {
     setLoading(false);
   };
 
-  const loadData = () => {
-    const filters = [];
-    if (
-      typeof selectedQualification !== "undefined" &&
-      selectedQualification !== null
-    ) {
-      filters.push(`qualification=${selectedQualification}`);
-    }
-
-    if (
-      typeof selectedStudyBase !== "undefined" &&
-      selectedStudyBase !== null
-    ) {
-      filters.push(`previous_place_of_study_type=${selectedStudyBase}`);
-    }
+  const loadData = useCallback(() => {
+    const filters = getFilters([
+      { key: "previous_place_of_study_type", value: selectedStudyBase },
+      { key: "qualification", value: selectedQualification },
+      { key: "language_of_study", value: selectedLangOfStudy },
+    ]);
 
     setLoading(true);
     fetchItems(
       "grants",
       {
         page: currentPage,
-        filters: filters,
-        pageSize: pageSize,
+        pageSize,
+        filters,
       },
       fetchData,
     );
-  };
+  }, [
+    currentPage,
+    pageSize,
+    selectedStudyBase,
+    selectedQualification,
+    selectedLangOfStudy,
+  ]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   useEffect(() => {
     getSelectItemsUneversal("qualifications", setQualificationsList, {
@@ -77,27 +96,36 @@ const SimpleAnalyticsTable = () => {
       }),
     });
 
-    getSelectItemsUneversal("previous_place_of_study_types", setStudyBaseList, {
+    getSelectItemsUneversal("langs_of_study", setLangsOfStudy, {
       customMapFunc: (item) => ({
         value: item["id"],
         label: item["name"],
       }),
     });
 
-    loadData();
-  }, [currentPage, pageSize, selectedQualification, selectedStudyBase]);
+    getSelectItemsUneversal("previous_place_of_study_types", setStudyBaseList, {
+      customMapFunc: (item) => ({
+        value: item["id"],
+        label: item["name"],
+      }),
+    });
+  }, []);
 
   const handleClearFilters = () => {
     setSelectedQualification(null);
     setSelectedStudyBase(null);
-    loadData();
   };
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "Имя гранта",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Язык обучения",
+      dataIndex: "langOfStudy",
+      key: "langOfStudy",
     },
     {
       title: "Квалификация",
@@ -133,32 +161,36 @@ const SimpleAnalyticsTable = () => {
         <h2 className="mb-4 mt-0">Аналитика по набору</h2>
         <Flex wrap gap="middle" justify="space-between" align="center">
           <Select
-            className="w-2/5"
-            placeholder="Выберите квалификацию"
+            className="w-3/12"
+            placeholder="Фильтровать по квалификации"
             value={selectedQualification}
-            onChange={(e) => {
-              setSelectedQualification(e);
-              loadData();
-            }}
+            onChange={setSelectedQualification}
             allowClear
             style={{ height: 40 }}
             options={qualificationsList}
           />
 
           <Select
-            className="w-2/5"
-            placeholder="Выберите базу обучения"
+            className="w-3/12"
+            placeholder="Фильтровать по языку обучения"
+            value={selectedLangOfStudy}
+            onChange={setSelectedLangOfStudy}
+            allowClear
+            style={{ height: 40 }}
+            options={langsOfStudy}
+          />
+
+          <Select
+            className="w-3/12"
+            placeholder="Фильтровать по базе обучения"
             value={selectedStudyBase}
-            onChange={(e) => {
-              setSelectedStudyBase(e);
-              loadData();
-            }}
+            onChange={setSelectedStudyBase}
             allowClear
             style={{ height: 40 }}
             options={studyBaseList}
           />
 
-          <Button onClick={handleClearFilters} size="large">
+          <Button className="w-2/8" onClick={handleClearFilters} size="large">
             Сбросить фильтры
           </Button>
         </Flex>

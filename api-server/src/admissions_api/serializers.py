@@ -234,7 +234,7 @@ class NationalityListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CollegeGrantSerializer(serializers.ModelSerializer):
+class CollegeSerializer(serializers.ModelSerializer):
     class Meta:
         model = College
         fields = "__all__"
@@ -250,11 +250,24 @@ class QualificationSerializer(serializers.ModelSerializer):
         queryset=Specialty.objects.all()
     )
 
+class AdmissionCreateUpdateGrantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdmissionsGrant
+        fields = [
+            'college',
+            'qualification',
+            'previous_place_of_study_type',
+            'language_of_study',
+            'name',
+            'places',
+        ]
+
 class AdmissionsGrantSerializer(serializers.ModelSerializer):
     actual = serializers.IntegerField(read_only=True)
     fulfilled_percent = serializers.FloatField(read_only=True)
     qualification = QualificationSerializer()
     previous_place_of_study_type = PreviousPlaceOfStudyTypeSerializer()
+    language_of_study = LanguageOfStudySerializer()
 
     class Meta:
         model = AdmissionsGrant
@@ -263,6 +276,8 @@ class AdmissionsGrantSerializer(serializers.ModelSerializer):
             'college',
             'qualification',
             'previous_place_of_study_type',
+            'language_of_study',
+            'name',
             'places',
             'actual',
             'fulfilled_percent',

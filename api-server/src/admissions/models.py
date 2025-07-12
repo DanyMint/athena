@@ -67,6 +67,11 @@ class LanguageOfStudy(BaseModel):
         verbose_name_plural = 'Языки обучения'
 
 
+def get_default_language_of_study():
+    obj = LanguageOfStudy.objects.first()
+    return obj.id if obj else None
+
+
 class Specialty(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     code = models.CharField(max_length=50, unique=True)
@@ -169,8 +174,9 @@ class AdmissionsGrantManager(models.Manager):
             on_the_budget=True,
             previous_place_of_study__previous_place_of_study_type=OuterRef('previous_place_of_study_type'),
             college=OuterRef('college'),
-            qualification=OuterRef('qualification')
-        ).values('college', 'qualification', 'previous_place_of_study__previous_place_of_study_type')\
+            qualification=OuterRef('qualification'),
+            language_of_study=OuterRef('language_of_study')
+        ).values('college', 'qualification', 'previous_place_of_study__previous_place_of_study_type', 'language_of_study')\
          .annotate(entrant_count=Count('id'))\
          .values('entrant_count')
 
@@ -179,12 +185,21 @@ class AdmissionsGrantManager(models.Manager):
             fulfilled_percent=100 * (Subquery(entrants, output_field=IntegerField()) / F('places'))
         )
 
+
 class AdmissionsGrant(BaseModel):
+    name = models.CharField(max_length=150, blank=True, default="")
     college = models.ForeignKey(College, on_delete=models.SET_NULL, null=True)
     qualification = models.ForeignKey(Qualification, on_delete=models.SET_NULL, null=True)
     previous_place_of_study_type = models.ForeignKey(PreviousPlaceOfStudyType, on_delete=models.SET_NULL, null=True)
     places = models.PositiveIntegerField()
     objects = AdmissionsGrantManager()
+    language_of_study = models.ForeignKey(
+        LanguageOfStudy,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=get_default_language_of_study
+    )
 
     def __str__(self):
         return f"{self.college} - {self.qualification} ({self.places} мест)"

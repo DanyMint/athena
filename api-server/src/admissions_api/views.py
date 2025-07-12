@@ -27,6 +27,7 @@ from admissions.models import (
 )
 from .paginations import EntrantsSetPagination, DirectoryManagmentSetPagination
 from .serializers import (
+    AdmissionCreateUpdateGrantSerializer,
     QuotaSerializer,
     SpecialtySerializer,
     LanguageOfStudySerializer,
@@ -37,7 +38,7 @@ from .serializers import (
     EntrantListSerializer,
     ParentsListSerializer,
     AdmissionsGrantSerializer,
-    CollegeGrantSerializer,
+    CollegeSerializer,
     QualificationSerializer,
     PreviousPlaceOfStudySerializer,
     PreviousPlaceOfStudyLabelSerializer,
@@ -181,36 +182,45 @@ class ParentsListCreate(generics.ListCreateAPIView):
         ]
 
 class GrantsReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = AdmissionsGrantSerializer
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return AdmissionCreateUpdateGrantSerializer
+        return AdmissionsGrantSerializer
+
     def get_queryset(self):
         return AdmissionsGrant.objects.with_fulfillment()
 
 class GrantsListCreate(generics.ListCreateAPIView):
-    serializer_class = AdmissionsGrantSerializer
     pagination_class = DirectoryManagmentSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
-
-    filterset_fields = ['previous_place_of_study_type', 'qualification']
-    search_fields = [
-        'college',
-        'qualification',
+    filterset_fields = [
         'previous_place_of_study_type',
+        'qualification',
+        'language_of_study',
+        'college',
     ]
 
-
+    search_fields = [
+        'language_of_study',
+    ]
 
     def get_queryset(self):
         return AdmissionsGrant.objects.with_fulfillment()
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AdmissionCreateUpdateGrantSerializer
+        return AdmissionsGrantSerializer
+
 
 class CollegeReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = College.objects.all()
-    serializer_class = CollegeGrantSerializer
+    serializer_class = CollegeSerializer
 
 class CollegesListCreate(generics.ListCreateAPIView):
     queryset = College.objects.all()
-    serializer_class = CollegeGrantSerializer
+    serializer_class = CollegeSerializer
 
 class QualificationReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Qualification.objects.all()
