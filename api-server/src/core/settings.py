@@ -1,40 +1,39 @@
 from os import getenv, path
 from pathlib import Path
 from dotenv import load_dotenv
+from django.core.management.utils import get_random_secret_key
 # from json import loads
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv()
 
-from django.core.management.utils import get_random_secret_key
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = getenv('SECRET_KEY', get_random_secret_key())
 DEBUG = bool(getenv("DEBUG"))
 
 ALLOWED_HOSTS = getenv('ALLOWED_HOSTS', '').split(',')
 
+# CORS settings
 CORS_ALLOW_ALL_ORIGINS = bool(getenv("CORS_ALLOW_ALL_ORIGINS"))
-#CORS_ALLOWED_ORIGINS = loads(getenv("CORS_ALLOWED_ORIGINS"))
+CSRF_TRUSTED_ORIGINS = getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://localhost,http://127.0.0.1').split(',')
 
-CSRF_TRUSTED_ORIGINS=[
-        'http://localhost:3000',
-        'http://localhost',
-        'http://127.0.0.1',
-]
-
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SAMESITE = "Lax"  # или "None", если фронт и бэкенд на разных доменах
-CSRF_COOKIE_SAMESITE = "Lax"
-# SECURE_PROXY_SSL_HEADER = None
+# Session and Cookie security
+SESSION_COOKIE_SECURE = bool(getenv('SESSION_COOKIE_SECURE', ''))
+CSRF_COOKIE_SECURE = bool(getenv('CSRF_COOKIE_SECURE', ''))
+SESSION_COOKIE_SAMESITE = getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+CSRF_COOKIE_SAMESITE = getenv('CSRF_COOKIE_SAMESITE', 'Lax')
+SECURE_PROXY_SSL_HEADER = None
 SESSION_COOKIE_DOMAIN = None
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_AGE = int(getenv('SESSION_COOKIE_AGE', '86400'))
+SESSION_SAVE_EVERY_REQUEST = bool(getenv('SESSION_SAVE_EVERY_REQUEST', 'True'))
+SESSION_EXPIRE_AT_BROWSER_CLOSE = bool(getenv('SESSION_EXPIRE_AT_BROWSER_CLOSE', ''))
 
-# Настройки сессий
-SESSION_COOKIE_AGE = 86400  # 24 часа
-SESSION_SAVE_EVERY_REQUEST = True
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# Security settings
+SECURE_HSTS_SECONDS = int(getenv('SECURE_HSTS_SECONDS', '3600'))
+SECURE_SSL_REDIRECT = bool(getenv('SECURE_SSL_REDIRECT', ''))
+SECURE_HSTS_PRELOAD = bool(getenv('SECURE_HSTS_PRELOAD', ''))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = bool(getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', ''))
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,7 +54,6 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -142,10 +140,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
 }
 
-SECURE_HSTS_SECONDS = 3600
-SECURE_SSL_REDIRECT = False
-SECURE_HSTS_PRELOAD = False
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 
 LOGGING = {
     'version': 1,
