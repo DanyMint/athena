@@ -187,7 +187,7 @@ class AdmissionsGrantManager(models.Manager):
 
 
 class AdmissionsGrant(BaseModel):
-    name = models.CharField(max_length=150, blank=True, default="")
+    name = models.CharField(max_length=150, blank=True, null=True)
     college = models.ForeignKey(College, on_delete=models.SET_NULL, null=True)
     qualification = models.ForeignKey(Qualification, on_delete=models.SET_NULL, null=True)
     previous_place_of_study_type = models.ForeignKey(PreviousPlaceOfStudyType, on_delete=models.SET_NULL, null=True)
@@ -212,6 +212,22 @@ class AdmissionsGrant(BaseModel):
             models.Index(fields=['qualification']),
         ]
 
+    def generate_default_grant_name(self):
+        parts = []
+        if self.qualification:
+            parts.append(str(self.qualification))
+        if self.previous_place_of_study_type:
+            parts.append(str(self.previous_place_of_study_type))
+        if self.places:
+            parts.append(f"{self.places} мест")
+        if self.language_of_study:
+            parts.append(f"язык: {self.language_of_study}")
+        return " ".join(parts)
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.generate_default_grant_name()
+        super().save(*args, **kwargs)
 
 class Parent(BaseModel):
     first_name = models.CharField(max_length=150)
