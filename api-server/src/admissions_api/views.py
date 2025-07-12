@@ -187,19 +187,21 @@ class GrantsReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
 
 class GrantsListCreate(generics.ListCreateAPIView):
     serializer_class = AdmissionsGrantSerializer
-
-    def get_queryset(self):
-        return AdmissionsGrant.objects.with_fulfillment()
-
-
     pagination_class = DirectoryManagmentSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
 
-    filter_backends = [SearchFilter]
+
+    filterset_fields = ['previous_place_of_study_type', 'qualification']
     search_fields = [
         'college',
         'qualification',
         'previous_place_of_study_type',
     ]
+
+
+
+    def get_queryset(self):
+        return AdmissionsGrant.objects.with_fulfillment()
 
 
 class CollegeReadUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
