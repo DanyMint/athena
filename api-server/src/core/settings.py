@@ -16,6 +16,7 @@ ALLOWED_HOSTS = getenv('ALLOWED_HOSTS', '').split(',')
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = bool(getenv("CORS_ALLOW_ALL_ORIGINS"))
 CSRF_TRUSTED_ORIGINS = getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://localhost,http://127.0.0.1').split(',')
+CORS_ALLOWED_ORIGINS = getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost,http://127.0.0.1').split(',')
 
 # Session and Cookie security
 SESSION_COOKIE_SECURE = bool(getenv('SESSION_COOKIE_SECURE', ''))

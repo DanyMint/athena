@@ -1,5 +1,6 @@
 import React from "react";
 import SimpleAnalyticsTable from "../components/SimpleAnalytics";
+import { baseBackEndURL } from "../tools/backendAPI";
 
 function Analytics() {
   return (
