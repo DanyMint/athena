@@ -46,7 +46,7 @@ const items = [
   //   null,
   //   "/create-report",
   // ),
-  // getItem("Настройки", "settings", <DesktopOutlined />, null, "/settings"),
+  getItem("Настройки", "settings", <DesktopOutlined />, null, "/settings"),
 ];
 
 // Компонент меню боковой панели
@@ -111,13 +111,13 @@ const App = () => {
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/entrants" element={<Entrants />} />
               <Route path="/create-report" element={<CreateReport />} />
-              {/* <Route path="/settings" element={<SettingsLayout />}>
+              <Route path="/settings" element={<SettingsLayout />}>
                 <Route index element={<CommonSettings />} />
-                <Route
+                {/* <Route
                   path="directory-managment"
                   element={<DirectoryManagement />}
-                />
-              </Route> */}
+                /> */}
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Content>

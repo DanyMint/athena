@@ -26,7 +26,8 @@ from admissions_api.views import (
     QualificationsListCreate,
     PreviousPlacesOfStudyListCreate,
     PreviousPlaceOfStudyReadUpdateDelete,
-    HowFoundOutListCreate
+    HowFoundOutListCreate,
+    API_export_entratns_csv
 )
 
 app_name = 'admissions_api'
@@ -75,4 +76,5 @@ urlpatterns = [
     path('how_found_out_sources',  HowFoundOutListCreate.as_view(), name="how_found_out_sources_list_create"),
 
     path('get_report_csv', get_csv_report, name="get_report_csv"),
+    path('export_entrants_to_csv', API_export_entratns_csv, name="export_entrants_to_csv"),
 ]

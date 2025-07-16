@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.filters import SearchFilter
 from rest_framework.decorators import api_view
+from admissions.tools.export_entrants import export_entrants_csv
 from admissions.tools.report import get_report
 from django.http import HttpResponse
 from django.db.utils import OperationalError
@@ -269,6 +270,15 @@ class HowFoundOutListCreate(generics.ListCreateAPIView):
 @api_view(["GET"])
 def get_csv_report(reuqest):
     csv_file_value = get_report().getvalue()
+
+    response = HttpResponse(csv_file_value, content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="report.csv"'
+
+    return response
+
+@api_view(["GET"])
+def API_export_entratns_csv(reuqest):
+    csv_file_value = export_entrants_csv().getvalue()
 
     response = HttpResponse(csv_file_value, content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="report.csv"'

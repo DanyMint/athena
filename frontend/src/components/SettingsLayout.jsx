@@ -15,12 +15,12 @@ const items = [
     ),
     key: "common",
   },
-  {
-    label: (
-      <Link to="/settings/directory-managment">Управление справочниками</Link>
-    ),
-    key: "DirectoryManagement",
-  },
+  // {
+  //   label: (
+  //     <Link to="/settings/directory-managment">Управление справочниками</Link>
+  //   ),
+  //   key: "DirectoryManagement",
+  // },
 ];
 
 const SettingsLayout = () => {
