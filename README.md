@@ -65,13 +65,6 @@ DEBUG=True
 CORS_ALLOW_ALL_ORIGINS=True
 CORS_ALLOWED_ORIGINS='[]'
 
-# Database
-DB_NAME=athena_db
-DB_USER=athena_user
-DB_PASSWORD=secure_password
-DB_HOST=localhost
-DB_PORT=5432
-
 VITE_BACKEND_API_URL=/api/
 #VITE_BACKEND_API_URL="http://domain/api/"
 
